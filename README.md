@@ -1,10 +1,10 @@
 # llmstat
 
-`llmstat` は [httpstat](https://github.com/davecheney/httpstat) 風に **LLM ストリーミング API の遅延を可視化する** Go 製 CLI。
+`llmstat` is a Go CLI that **visualizes the latency of streaming LLM APIs** in the style of [httpstat](https://github.com/davecheney/httpstat).
 
-DNS / TCP / TLS / TTFT / Generation / Tail を 1 枚のバーで見せつつ、SSE / event stream の **chunk 間レイテンシ (ITL) の p50 / p95 / max** と **トークンスループット** を表示する。
+It renders DNS / TCP / TLS / TTFT / Generation / Tail in a single bar, alongside **p50 / p95 / max of inter-chunk latency (ITL)** for SSE / event streams and **token throughput**.
 
-サポート対象:
+Supported providers:
 
 - **Gemini AI Studio** (API key)
 - **Gemini Vertex AI** (GCP Service Account)
@@ -17,7 +17,7 @@ DNS / TCP / TLS / TTFT / Generation / Tail を 1 枚のバーで見せつつ、S
 go install github.com/ryuichi1208/llmstat/cmd/llmstat@latest
 ```
 
-GitHub Releases にはクロスコンパイル済みバイナリ (linux / darwin × amd64 / arm64) が tag ごとに置かれる。
+Cross-compiled binaries (linux / darwin × amd64 / arm64) are published to GitHub Releases for every tag.
 
 ## Usage
 
@@ -25,7 +25,7 @@ GitHub Releases にはクロスコンパイル済みバイナリ (linux / darwin
 llmstat [flags] "<prompt>"
 ```
 
-Provider はフラグと環境変数から自動判定される。`--provider` で明示指定もできる。
+The provider is auto-detected from flags and environment variables. You can also select it explicitly with `--provider`.
 
 ### Gemini (AI Studio)
 
@@ -61,44 +61,44 @@ llmstat -m anthropic.claude-3-5-sonnet-20241022-v2:0 "hello"
 
 ## Flags
 
-共通:
+Common:
 
-| flag | env | 説明 |
+| flag | env | description |
 |---|---|---|
-| `--provider` |  | `gemini` / `azure` / `bedrock` を明示 |
-| `-m`, `--model` |  | モデル名 |
-| `--max-tokens` |  | max output tokens |
-| `--temperature` |  | 温度 |
-| `-v`, `--verbose` |  | chunk ごとの timing を出力 |
-| `--version` |  | バージョン表示 |
+| `--provider` |  | Explicitly select `gemini` / `azure` / `bedrock` |
+| `-m`, `--model` |  | Model name |
+| `--max-tokens` |  | Max output tokens |
+| `--temperature` |  | Sampling temperature |
+| `-v`, `--verbose` |  | Print per-chunk timing |
+| `--version` |  | Print version |
 
 Gemini:
 
-| flag | env | 説明 |
+| flag | env | description |
 |---|---|---|
-| `-k`, `--api-key` | `GEMINI_API_KEY` | AI Studio の API key |
-| `--region` |  | Vertex AI のリージョン (例: `us-central1`)。指定すると Vertex モード |
-| `--project` |  | GCP project ID。未指定なら credentials JSON から解決 |
+| `-k`, `--api-key` | `GEMINI_API_KEY` | AI Studio API key |
+| `--region` |  | Vertex AI region (e.g. `us-central1`). Setting this enables Vertex mode |
+| `--project` |  | GCP project ID. Resolved from the credentials JSON if omitted |
 | `--credentials` | `GOOGLE_APPLICATION_CREDENTIALS` | Service Account JSON |
-| `--thinking-budget` |  | gemini の thinkingBudget (0=off, -1=auto, N=cap) |
+| `--thinking-budget` |  | Gemini `thinkingBudget` (0=off, -1=auto, N=cap) |
 
 Azure:
 
-| flag | env | 説明 |
+| flag | env | description |
 |---|---|---|
 | `--azure-endpoint` | `AZURE_OPENAI_ENDPOINT` | `https://<resource>.openai.azure.com` |
-| `--azure-api-key` | `AZURE_OPENAI_API_KEY` | リソース api-key |
-| `--azure-deployment` | `AZURE_OPENAI_DEPLOYMENT` | デプロイメント名 |
-| `--azure-api-version` | `AZURE_OPENAI_API_VERSION` | デフォルト `2024-10-21` |
+| `--azure-api-key` | `AZURE_OPENAI_API_KEY` | Resource api-key |
+| `--azure-deployment` | `AZURE_OPENAI_DEPLOYMENT` | Deployment name |
+| `--azure-api-version` | `AZURE_OPENAI_API_VERSION` | Defaults to `2024-10-21` |
 
 Bedrock:
 
-| flag | env | 説明 |
+| flag | env | description |
 |---|---|---|
-| `--bedrock-region` | `AWS_REGION` | Bedrock リージョン |
-|  | `AWS_ACCESS_KEY_ID` | アクセスキー |
-|  | `AWS_SECRET_ACCESS_KEY` | シークレットキー |
-|  | `AWS_SESSION_TOKEN` | (任意) セッショントークン |
+| `--bedrock-region` | `AWS_REGION` | Bedrock region |
+|  | `AWS_ACCESS_KEY_ID` | Access key |
+|  | `AWS_SECRET_ACCESS_KEY` | Secret key |
+|  | `AWS_SESSION_TOKEN` | (Optional) session token |
 
 ## Output example
 
@@ -128,12 +128,12 @@ Stream stats:
 
 ## Release
 
-`main` への push をトリガに自動でリリースが走る:
+A release is cut automatically on every push to `main`:
 
-1. `auto-tag.yaml` が直近の `vX.Y.Z` を見て **patch を 1 つ進めた tag** を打ち、push する
-2. tag push を受けて `release.yaml` が [GoReleaser](https://goreleaser.com/) を起動し、linux / darwin × amd64 / arm64 のバイナリを GitHub Releases に公開する
+1. `auto-tag.yaml` looks up the most recent `vX.Y.Z` tag, **bumps the patch by one**, and pushes the new tag.
+2. The tag push triggers `release.yaml`, which runs [GoReleaser](https://goreleaser.com/) and publishes linux / darwin × amd64 / arm64 binaries to GitHub Releases.
 
-メジャー/マイナーを上げたい場合は手動で `git tag vX.Y.0 && git push origin vX.Y.0` する。
+To bump major or minor, push the tag manually: `git tag vX.Y.0 && git push origin vX.Y.0`.
 
 ## License
 
