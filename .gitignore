@@ -1,0 +1,6 @@
+/dist/
+/llmstat
+/llmstat.exe
+*.test
+*.out
+.DS_Store

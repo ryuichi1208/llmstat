@@ -1,0 +1,67 @@
+version: 2
+
+project_name: llmstat
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: llmstat
+    main: ./cmd/llmstat
+    binary: llmstat
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    formats: [tar.gz]
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  use: github
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Bug fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
+
+release:
+  draft: false
+  prerelease: auto
+
+# Uncomment to publish to a Homebrew tap once available.
+# brews:
+#   - name: llmstat
+#     repository:
+#       owner: ryuichi1208
+#       name: homebrew-tap
+#     homepage: https://github.com/ryuichi1208/llmstat
+#     description: httpstat-style latency visualizer for LLM streaming APIs
+#     license: MIT
