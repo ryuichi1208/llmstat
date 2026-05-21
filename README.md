@@ -128,10 +128,12 @@ Stream stats:
 
 ## Release
 
-このリポジトリは [tagpr](https://github.com/Songmu/tagpr) で Release PR を回し、tag push をトリガに [GoReleaser](https://goreleaser.com/) で各プラットフォーム向けバイナリを GitHub Releases に公開する。
+`main` への push をトリガに自動でリリースが走る:
 
-- `main` への push → tagpr が "Release for vX.Y.Z" PR を自動更新
-- その PR を merge → tag が打たれ、`release.yaml` が GoReleaser を起動
+1. `auto-tag.yaml` が直近の `vX.Y.Z` を見て **patch を 1 つ進めた tag** を打ち、push する
+2. tag push を受けて `release.yaml` が [GoReleaser](https://goreleaser.com/) を起動し、linux / darwin × amd64 / arm64 のバイナリを GitHub Releases に公開する
+
+メジャー/マイナーを上げたい場合は手動で `git tag vX.Y.0 && git push origin vX.Y.0` する。
 
 ## License
 
